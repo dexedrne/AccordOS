@@ -6,7 +6,12 @@ __pycache__/
 *.bak*
 *.orig
 venv/
+.venv/
+.qt/
+aqtinstall.log
+docs/accord-desktop-plan.md
 data/
+assets/garage/*.glb
 sc_downloader/
 
 # SECRETS: never publish

@@ -15,6 +15,7 @@
 #include <QMatrix4x4>
 #include <QQuaternion>
 #include <QVector3D>
+#include <QUuid>
 #include <functional>
 #include <algorithm>
 
@@ -26,9 +27,28 @@ CarModelManager::CarModelManager(const QString &projectDir, QObject *parent)
     QFile cur(userDir() + QStringLiteral("/current"));
     if (cur.open(QIODevice::ReadOnly)) m_currentId = QString::fromUtf8(cur.readAll()).trimmed();
     for (const QString &id : carIds()) stripAnimations(fileOf(id));       // cars loaded with a previous version
+    if (carIds().isEmpty()) {
+        const QDir garage(m_project + QStringLiteral("/assets/garage"));
+        QFile catalog(garage.filePath(QStringLiteral("catalog.json")));
+        if (!catalog.open(QIODevice::ReadOnly)) return;
+        QString first;
+        for (const QJsonValue &entry : QJsonDocument::fromJson(catalog.readAll()).array()) {
+            QJsonObject car = entry.toObject();
+            const QString file = car.take(QStringLiteral("file")).toString();
+            if (file.isEmpty() || QFileInfo(file).fileName() != file) continue;
+            const QString source = garage.filePath(file);
+            if (!QFileInfo::exists(source)) continue;
+            const QString error = finishInstall(source, car.value(QStringLiteral("name")).toString());
+            if (!error.isEmpty()) { qWarning() << "[garage]" << file << error; continue; }
+            saveCurrentMeta(car.toVariantMap());
+            saveParts(currentParts().value(QStringLiteral("parts")).toMap());
+            if (first.isEmpty()) first = currentId();
+        }
+        if (!first.isEmpty()) selectCar(first);
+    }
 }
 
-QString CarModelManager::userDir() const { return QDir::homePath() + QStringLiteral("/.config/volta/car"); }
+QString CarModelManager::userDir() const { return QStandardPaths::writableLocation(QStandardPaths::AppConfigLocation) + QStringLiteral("/car"); }
 QString CarModelManager::sidecarFor(const QString &glb)
 {
     return glb.left(glb.length() - (glb.endsWith(QLatin1String(".glb"), Qt::CaseInsensitive) ? 4 : 0)) + QStringLiteral(".json");
@@ -74,6 +94,15 @@ QVariantList CarModelManager::cars() const
     return out;
 }
 QVariantMap CarModelManager::currentMeta() const { const QString id = currentId(); return id.isEmpty() ? QVariantMap() : metaOf(id); }
+bool CarModelManager::selectCar(const QString &id)
+{
+    if (!carIds().contains(id)) return false;
+    QSaveFile current(userDir() + QStringLiteral("/current"));
+    if (!current.open(QIODevice::WriteOnly) || current.write(id.toUtf8()) != id.toUtf8().size() || !current.commit()) return false;
+    m_currentId = id;
+    ++m_rev; emit changed(); emit partsChanged(); emit currentChanged();
+    return true;
+}
 void CarModelManager::saveCurrentMeta(const QVariantMap &patch)
 {
     const QString id = currentId();
@@ -120,9 +149,21 @@ static bool readGlbJson(const QString &path, QJsonObject &out, QString &err)
     if (!f.open(QIODevice::ReadOnly)) { err = QObject::tr("File not readable."); return false; }
     const QByteArray head = f.read(20);
     if (head.size() < 20 || head.left(4) != "glTF") { err = QObject::tr("Not a valid .glb file."); return false; }
+    const auto *header = reinterpret_cast<const uchar *>(head.constData());
+    if (qFromLittleEndian<quint32>(header + 4) != 2 || qFromLittleEndian<quint32>(header + 8) != f.size()) {
+        err = QObject::tr("Incomplete or unsupported .glb file."); return false;
+    }
     const quint32 len = qFromLittleEndian<quint32>(reinterpret_cast<const uchar *>(head.constData()) + 12);
-    if (len == 0 || len > 64u * 1024 * 1024 || head.mid(16, 4) != "JSON") { err = QObject::tr("Invalid .glb file."); return false; }
+    if (len == 0 || len % 4 || len > 64u * 1024 * 1024 || 20 + qint64(len) > f.size() || head.mid(16, 4) != "JSON") { err = QObject::tr("Invalid .glb file."); return false; }
     const QByteArray js = f.read(len);
+    while (!f.atEnd()) {
+        const QByteArray chunk = f.read(8);
+        if (chunk.size() != 8) { err = QObject::tr("Incomplete .glb chunk."); return false; }
+        const quint32 size = qFromLittleEndian<quint32>(reinterpret_cast<const uchar *>(chunk.constData()));
+        if (size % 4 || qint64(size) > f.size() - f.pos() || !f.seek(f.pos() + size)) {
+            err = QObject::tr("Incomplete .glb chunk."); return false;
+        }
+    }
     QJsonParseError pe;
     const QJsonDocument d = QJsonDocument::fromJson(js, &pe);
     if (!d.isObject()) { err = QObject::tr("Damaged .glb file."); return false; }
@@ -164,9 +205,9 @@ static QChar rowOf(const QStringList &t)
     return QChar();
 }
 static bool isDoorName(const QStringList &t)    { return has(t, {"door", "doors", "portiera", "porta", "puerta", "porte", "tur", "tuer"}); }
-static bool isWheelName(const QStringList &t)   { return has(t, {"wheel", "wheels", "ruota", "rueda", "roue", "rad"}); }
+static bool isWheelName(const QStringList &t)   { return has(t, {"wheel", "wheels", "hubcap", "ruota", "rueda", "roue", "rad"}); }
 static bool isHoodName(const QStringList &t)    { return has(t, {"hood", "bonnet", "cofano", "capot", "motorhaube", "frunk"}); }
-static bool isTrunkName(const QStringList &t)   { return has(t, {"trunk", "boot", "tailgate", "liftgate", "hatch", "baule", "portellone", "coffre"}); }
+static bool isTrunkName(const QStringList &t)   { return has(t, {"trunk", "boot", "bootlid", "tailgate", "liftgate", "hatch", "baule", "portellone", "coffre"}); }
 static bool isMinorPart(const QStringList &t)   { return has(t, {"handle", "mirror", "window", "glass", "gasket", "seal", "sealing", "lock", "trim", "light", "lamp", "disc", "pad", "brake", "tire", "tyre", "rim", "limiter", "hinge", "hyd", "hydraulic", "shadowcap", "cap", "strut", "damper", "caliper", "airbag", "speaker"}); }
 
 static QMatrix4x4 localMatrix(const QJsonObject &n)
@@ -455,19 +496,23 @@ QString CarModelManager::finishInstall(const QString &p, const QString &displayN
     QJsonObject j; QString err;
     if (!readGlbJson(p, j, err)) return err;
     if (QFileInfo(p).size() > 200LL * 1024 * 1024) return tr("The file is too large (maximum 200 MB).");
-    QDir().mkpath(userDir());
-    // one model at a time: the new one takes the place of the old one
-    for (const QString &old : carIds()) { QFile::remove(fileOf(old)); QFile::remove(sidecarFor(fileOf(old))); QFile::remove(metaPath(old)); }
-    const QString id = QStringLiteral("auto_") + QString::number(QDateTime::currentMSecsSinceEpoch());
+    if (!QDir().mkpath(userDir())) return tr("Unable to create the garage folder.");
+    const QString id = QStringLiteral("auto_") + QString::number(QDateTime::currentMSecsSinceEpoch())
+        + QLatin1Char('_') + QUuid::createUuid().toString(QUuid::Id128);
     const QString dst = fileOf(id);
     if (!QFile::copy(p, dst)) return tr("Unable to copy the file.");
     stripAnimations(dst);
-    QFile mf(metaPath(id));
-    if (mf.open(QIODevice::WriteOnly)) mf.write(QJsonDocument(QJsonObject{{QStringLiteral("name"), displayName}}).toJson(QJsonDocument::Compact));
-    m_currentId = id;
-    QFile cf(userDir() + QStringLiteral("/current"));
-    if (cf.open(QIODevice::WriteOnly | QIODevice::Truncate)) cf.write(id.toUtf8());
-    ++m_rev; emit changed(); emit partsChanged(); emit carInstalled(); emit currentChanged();
+    const QByteArray metadata = QJsonDocument(QJsonObject{{QStringLiteral("name"), displayName}}).toJson(QJsonDocument::Compact);
+    QSaveFile mf(metaPath(id));
+    if (!mf.open(QIODevice::WriteOnly) || mf.write(metadata) != metadata.size() || !mf.commit()) {
+        QFile::remove(dst);
+        return tr("Unable to save the car details.");
+    }
+    if (!selectCar(id)) {
+        QFile::remove(dst); QFile::remove(metaPath(id));
+        return tr("Unable to save the selected car.");
+    }
+    emit carInstalled();
     return QString();
 }
 

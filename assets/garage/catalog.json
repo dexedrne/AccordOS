@@ -1,0 +1,12 @@
+[
+  {"file": "honda-accord-1993.glb", "name": "1993 Honda Accord · CB7", "color": "#973B35", "finish": "lucida"},
+  {"file": "honda-civic-coupe-1993.glb", "name": "1993 Honda Civic Coupe"},
+  {"file": "honda-civic-sir-hatchback-1992.glb", "name": "1992 Honda Civic SiR Hatchback"},
+  {"file": "honda-civic-lx-1997.glb", "name": "1997 Honda Civic LX"},
+  {"file": "honda-civic-type-r-1998.glb", "name": "1998 Honda Civic Type R"},
+  {"file": "toyota-4runner-1998.glb", "name": "1998 Toyota 4Runner"},
+  {"file": "lexus-is-300.glb", "name": "Lexus IS 300"},
+  {"file": "lexus-ls-400.glb", "name": "Lexus LS 400"},
+  {"file": "lexus-ls-430-2004.glb", "name": "2004 Lexus LS 430"},
+  {"file": "lexus-es-300-1992.glb", "name": "1992 Lexus ES 300"}
+]

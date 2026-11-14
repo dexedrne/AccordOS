@@ -132,7 +132,9 @@ QVariantList SetupManager::dependencyReport() const
     const bool obex = QFileInfo::exists(QStringLiteral("/usr/libexec/bluetooth/obexd")) || QFileInfo::exists(QStringLiteral("/usr/lib/bluetooth/obexd"));
     out << depEntry(QStringLiteral("BlueZ + obexd"), QStringLiteral("Bluetooth, phone contacts, SMS and music from the phone"),
                     has("bluetoothctl") && obex, true,
-                    QStringLiteral("Install it from the terminal:"), QStringLiteral("sudo apt install bluez bluez-obexd"));
+                    QStringLiteral("Install it from the terminal:"), QFileInfo::exists(QStringLiteral("/etc/arch-release"))
+                        ? QStringLiteral("sudo pacman -S --needed bluez bluez-utils bluez-obex")
+                        : QStringLiteral("sudo apt install bluez bluez-obexd"));
     QLibrary usb(QStringLiteral("usb-1.0"));
     out << depEntry(QStringLiteral("libusb"), QStringLiteral("CarPlay / Android Auto dongle"), usb.load(), false,
                     QStringLiteral("Install it from the terminal:"), QStringLiteral("sudo apt install libusb-1.0-0"));

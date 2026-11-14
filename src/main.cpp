@@ -8,6 +8,8 @@
 #include <thread>
 #include <cstdio>
 #include <QGuiApplication>
+#include <QLockFile>
+#include <QStandardPaths>
 #include <QFont>
 #include <QFontDatabase>
 #include <QQmlApplicationEngine>
@@ -404,10 +406,16 @@ int main(int argc, char *argv[])
     QFont appFont(uiFamily, 11);
     appFont.setHintingPreference(QFont::PreferFullHinting);
     app.setFont(appFont);
-    app.setApplicationName("Volta OS");
+    app.setApplicationName("Accord OS");
     app.setOrganizationName("VoltaOS");
-    app.setDesktopFileName("VoltaOS");  // silences the qt.positioning.geoclue2 warning
+    app.setDesktopFileName("accord-os");
     app.setOrganizationDomain("voltaqt.local");
+    QLockFile instanceLock(QStandardPaths::writableLocation(QStandardPaths::RuntimeLocation)
+                           + QStringLiteral("/accord-os.lock"));
+    if (!instanceLock.tryLock()) {
+        qWarning() << "Accord OS is already running. Close its window before starting another copy.";
+        return 0;
+    }
     {   // chosen language: the Python services read it from VOLTA_LANG (YT Music, podcast, voice content...)
         const QString l = QSettings().value("ui/language", "en").toString();
         qputenv("VOLTA_LANG", l.toUtf8());

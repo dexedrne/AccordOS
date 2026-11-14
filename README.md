@@ -1,5 +1,12 @@
-🚗 Volta OS
+🚗 Accord OS — personal garage edition
 ===========
+
+A desktop fork of [VoltaOS](https://github.com/Omardigio/VoltaOS), centered on a
+1993 Honda Accord CB7. Includes a persistent local garage for the owner's Honda,
+Toyota and Lexus models. Run `./start.sh` for the desktop preview.
+
+See [desktop setup and build notes](docs/accord-desktop.md). Personal model files
+are excluded from git; original model terms apply. Upstream documentation follows.
 
 ![Qt](https://img.shields.io/badge/Qt-6-brightgreen.svg)
 ![QML](https://img.shields.io/badge/UI-QML-blue.svg)

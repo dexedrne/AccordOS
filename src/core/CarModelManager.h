@@ -10,8 +10,7 @@
 // read them ourselves from the file: the order of the nodes (depth-first visit) matches that of the tree that
 // carica RuntimeLoader, e cosi' QML sa quale nodo e' "portiera sinistra", "ruota anteriore destra"...
 //
-// One model at a time, in ~/.config/volta/car/: auto_<id>.glb + auto_<id>.json (parts chosen in the setup)
-// + auto_<id>.meta.json (position/shadow/button adjustments and color). Loading a new one replaces the old one.
+// Each car has its own GLB, parts and appearance in the application's config directory.
 // With no car the UI shows the "Load 3D car" button.
 class CarModelManager : public QObject
 {
@@ -31,6 +30,7 @@ public:
     int revision() const { return m_rev; }
     QVariantList cars() const;
     QString currentId() const;
+    Q_INVOKABLE bool selectCar(const QString &id);
     bool converting() const { return m_converting; }
 
     // Reads the .glb: node names, parents, materials, and the automatic detection of the parts.

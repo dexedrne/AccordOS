@@ -51,7 +51,12 @@ find_package(Qt6 OPTIONAL_COMPONENTS WaylandCompositor QUIET)
 find_package(OpenSSL REQUIRED)
 include(third_party/aap_protobuf/AapProtobuf.cmake)
 file(READ third_party/aap_cert/headunit.crt AA_CERT_PEM)
-file(READ third_party/aap_cert/headunit.key AA_KEY_PEM)
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/third_party/aap_cert/headunit.key")
+    file(READ third_party/aap_cert/headunit.key AA_KEY_PEM)
+else()
+    set(AA_KEY_PEM "")
+    message(WARNING "Android Auto certificate key is absent; native Android Auto requires a supplied certificate/key pair. Desktop features remain available.")
+endif()
 configure_file(src/androidauto/AaCert.cpp.in ${CMAKE_CURRENT_BINARY_DIR}/AaCert.cpp @ONLY)
 set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS third_party/aap_cert/headunit.crt third_party/aap_cert/headunit.key)
 
@@ -232,6 +237,7 @@ qt_add_qml_module(VoltaOS
         qml/LocalMusicDashboard.qml
         qml/YtMusicDashboard.qml
         qml/CarPanel.qml
+        qml/CarAppearance.qml
         qml/CarScene.qml
         qml/SpeedCluster.qml
         qml/SpeedBar.qml

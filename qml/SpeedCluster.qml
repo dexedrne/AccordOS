@@ -1,20 +1,18 @@
 import QtQuick
 
-// Speed cluster in EV style: PRND, number, unit, and light indicators
-// (green headlight + red seat belt, icons taken from the repo). Compact proportions.
+// No vehicle telemetry is connected in the desktop edition.
 Item {
     id: cluster
 
-    property string gear:        "P"        // P R N D
-    property string speedValue:  "0"
-    property string speedUnit:   "km/h"
+    property string gear:        ""
+    property string speedValue:  "—"
+    property string speedUnit:   "MPH"
     property bool   lightTheme:  false
     property bool   rhd:         false     // right-hand drive: content aligned to the right (the block sits on the right edge)
 
-    // Indicators (on by default as in the photo). Connect them to the real data.
-    property bool headlightOn: true
+    property bool headlightOn: false
     property bool highBeamOn:  false
-    property bool seatbeltOn:  true
+    property bool seatbeltOn:  false
 
     implicitWidth:  col.width      // as wide as the content: so the margin from the edge is the real one
     implicitHeight: col.height
@@ -25,6 +23,7 @@ Item {
 
         // ── PRND ────────────────────────────────────────────────────────────
         Row {
+            visible: cluster.gear !== ""
             x: cluster.rhd ? col.width - width : 0
             spacing: 7
             Repeater {
@@ -35,6 +34,12 @@ Item {
                     color: cluster.gear === modelData ? "#F0F0F0" : "#414141"
                 }
             }
+        }
+
+        Text {
+            text: qsTr("No vehicle data")
+            color: cluster.lightTheme ? "#757575" : "#A2A3A5"
+            font.pixelSize: 12
         }
 
         // ── Number + unit ───────────────────────────────────────────────────

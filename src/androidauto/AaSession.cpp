@@ -32,7 +32,6 @@
 #include "aap_protobuf/service/sensorsource/message/SensorRequest.pb.h"
 #include "aap_protobuf/service/sensorsource/message/SensorResponse.pb.h"
 
-namespace pb = aap_protobuf;
 namespace ctl = aap_protobuf::service::control::message;
 namespace med = aap_protobuf::service::media;
 namespace sen = aap_protobuf::service::sensorsource::message;
@@ -283,7 +282,7 @@ void AaSession::onChannelControl(quint8 ch, quint16 id, const QByteArray &body)
         ctl::ChannelOpenRequest rq;
         rq.ParseFromArray(body.constData(), body.size());
         ctl::ChannelOpenResponse rs;
-        rs.set_status(pb::shared::STATUS_SUCCESS);
+        rs.set_status(aap_protobuf::shared::STATUS_SUCCESS);
         m_open[ch] = true;
         sendPb(ch, true, C_CHAN_OPEN_RESP, rs);
         qInfo() << "[AA] channel" << ch << "open";
@@ -379,7 +378,7 @@ void AaSession::onSensor(quint16 id, const QByteArray &body)
     sen::SensorRequest rq;
     rq.ParseFromArray(body.constData(), body.size());
     sen::SensorResponse rs;
-    rs.set_status(pb::shared::STATUS_SUCCESS);
+    rs.set_status(aap_protobuf::shared::STATUS_SUCCESS);
     sendPb(Sensor, false, S_RESPONSE, rs);
     sendSensorBatch(int(rq.type()));
 }

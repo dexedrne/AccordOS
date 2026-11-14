@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Shapes
 import QtQuick.Window
 import QtQuick3D
+import QtQuick.Controls as Controls
 
 Item {
     property alias sceneMidLayer: car3DView.midLayer
@@ -67,15 +68,6 @@ Item {
         }
 
         // ════════ STRUMENTI SOVRAPPOSTI (KM/H E SEGNALI) ════════
-        SpeedBar {
-            id: speedBar
-            opacity: car3DView.uiHidden ? 0 : 1; visible: opacity > 0.01
-            Behavior on opacity { NumberAnimation { duration: 220 } }
-            x: carPanel.rhd ? parent.width - width - 8 : 8; y: 46; z: 10
-            height: 190
-            fillPct: 0 // To be connected to the real GPS if you want
-        }
-
         SpeedCluster {
             id: speedCluster
             opacity: car3DView.uiHidden ? 0 : 1; visible: opacity > 0.01
@@ -83,11 +75,71 @@ Item {
             x: carPanel.rhd ? parent.width - width - 24 : 24; y: 12; z: 10
             lightTheme: carPanel._lt
             rhd:        carPanel.rhd
-            gear:       "P"
-            speedValue: "0"
-            speedUnit:  "km/h"
-            headlightOn: true
-            seatbeltOn:  true
+        }
+
+        Column {
+            id: garageHeader
+            z: 20
+            anchors.top: parent.top
+            anchors.topMargin: 18
+            anchors.right: parent.right
+            anchors.rightMargin: 30
+            width: Math.min(260, parent.width * 0.58)
+            spacing: 8
+            visible: !car3DView.uiHidden
+            Text {
+                text: qsTr("PERSONAL GARAGE")
+                color: "#C84139"
+                font.pixelSize: 11
+                font.weight: Font.DemiBold
+                font.letterSpacing: 2
+            }
+            Controls.ComboBox {
+                id: garagePicker
+                objectName: "garagePicker"
+                width: parent.width
+                height: 44
+                model: CarModels.cars
+                textRole: "name"
+                valueRole: "id"
+                currentIndex: {
+                    const cars = CarModels.cars
+                    for (let i = 0; i < cars.length; ++i) if (cars[i].current) return i
+                    return -1
+                }
+                Accessible.name: qsTr("Select a car")
+                onActivated: {
+                    if (!CarModels.selectCar(currentValue)) garageError.text = qsTr("Unable to select this car")
+                    else garageError.text = ""
+                }
+                contentItem: Text {
+                    leftPadding: 12
+                    rightPadding: 28
+                    text: garagePicker.displayText || qsTr("Add your first car")
+                    color: carPanel._lt ? "#171717" : "#F0F0F0"
+                    font.pixelSize: 14
+                    verticalAlignment: Text.AlignVCenter
+                    elide: Text.ElideRight
+                }
+                background: Rectangle {
+                    radius: 8
+                    color: carPanel._lt ? "#F0F0F0" : "#242020"
+                    border.color: garagePicker.activeFocus ? "#C84139" : (carPanel._lt ? "#D0D1D2" : "#513330")
+                }
+            }
+            Controls.Button {
+                text: qsTr("Add car")
+                onClicked: CarModels.requestReload()
+                Accessible.name: qsTr("Add a 3D car to your garage")
+            }
+            Text {
+                id: garageError
+                width: parent.width
+                wrapMode: Text.Wrap
+                visible: text !== ""
+                color: "#ED4E3B"
+                font.pixelSize: 12
+            }
         }
 
         Rectangle {

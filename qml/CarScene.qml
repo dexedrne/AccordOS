@@ -209,11 +209,9 @@ Item {
     readonly property real _floorSolidPos: Math.min(0.9, floorSolidRadius / (floorSize / 2))
     
     // ═══ CAR PAINT COLOR (settable from Settings, as in EV OS) ═══
-    Core.Settings {
+    CarAppearance {
         id: carPrefs
-        category: "ui"
-        property string carColor: "#C8C9CA"
-        property string carFinish: "lucida"
+        manager: CarModels
     }
     // paint texture (orange peel + fine grain) on the body
     property real paintTexStrength: 0.0      // 0 = off, 0.2..0.6 consigliato
@@ -296,19 +294,11 @@ Item {
     }
     function resetLayout() { root.layout = root._mergeLayout({}); root._saveLayout() }
     // saves the current color and finish in the data of the car in use (end of the setup)
-    function saveCarColor() { CarModels.saveCurrentMeta({ color: "" + carPrefs.carColor, finish: carPrefs.carFinish }) }
+    function saveCarColor() { carPrefs.save() }
     // car change: its adjustments and its color are loaded
     function _applyCarMeta() {
         root.layout = root._loadLayout()
-        var m = CarModels.currentMeta()
-        if (m.color) carPrefs.carColor = m.color
-        else root.saveCarColor()            // car without a saved color: keeps the current one and saves it, so it no longer changes with the other cars
-        if (m.finish) carPrefs.carFinish = m.finish
-    }
-    Connections {
-        target: carPrefs
-        function onCarColorChanged() { CarModels.saveCurrentMeta({ color: "" + carPrefs.carColor }) }
-        function onCarFinishChanged() { CarModels.saveCurrentMeta({ finish: carPrefs.carFinish }) }
+        carPrefs.load()
     }
     // ── Buttons on the car (lock, hood, trunk): each one is attached to a POINT OF THE CAR (car coordinates),
     // so it follows the car when the panel changes size or the car rotates. The line goes down from the button to that point.
@@ -365,7 +355,10 @@ Item {
     Connections {
         target: CarModels
         function onCarInstalled() { root.replacing = false; root._carErr = "" }
-        function onCurrentChanged() { root._applyCarMeta(); root._bindMain() }
+        function onCurrentChanged() {
+            root.doorLeftOpen = 0; root.doorRightOpen = 0; root.hoodOpen = 0; root.trunkOpen = 0
+            root._applyCarMeta(); root._bindMain()
+        }
         function onConvertFailed(reason) { root._carErr = reason }
         function onAdjustRequested() { root.adjustOpen = true }
         function onReloadRequested() { root.replacing = true; root.adjustOpen = false }
@@ -383,12 +376,12 @@ Item {
     readonly property var _carInfo: { var r = CarModels.revision; return CarModels.carFile !== "" ? CarModels.currentParts() : ({}) }
     readonly property bool userCarActive: root.useGlbCar && _carInfo.ok === true
     readonly property var _fin: root._finishParams(root.carFinish)
-    property color carPaintColor: carPrefs.carColor
+    property alias carPaintColor: carPrefs.carColor
     // dl68: color with which the floor REFLECTION is drawn (it does not follow the Toybox wrapper)
     property color reflPaintColor: "#8A8B8C"          // medium gray: with the brightness below the reflection it becomes dark gray (not white)
 
     // ═══ TIPO DI VERNICE (Toybox › Colorizer): "lucida" | "pastello" | "opaca" ═══
-    property string carFinish: carPrefs.carFinish
+    property alias carFinish: carPrefs.carFinish
     onCarFinishChanged: root.applyFinish()
     function _finishParams(f) {
         if (f === "opaca")    return { metalness: 0.05, roughness: 0.85, clearcoat: 0.0, clearcoatRough: 0.6 }
@@ -409,7 +402,6 @@ Item {
         for (var i = 0; i < root._paintTargetsMain.length; i++)
             root._applyFinishTo(root._paintTargetsMain[i], root.carFinish)
     }
-    Behavior on carPaintColor { ColorAnimation { duration: 450; easing.type: Easing.OutCubic } }
 
     readonly property int _bodyMaterialIndex: 3
     readonly property int _bumperMaterialIndex: -1
@@ -647,7 +639,7 @@ Item {
         root.targetElevation = targetEl
     }
 
-    Component.onCompleted: resetView(true, root.tt > 0.5)
+    Component.onCompleted: { root._applyCarMeta(); resetView(true, root.tt > 0.5) }
 
     // True until the camera/car has reached its target. At rest
     // the animation switches off and the scene stops redrawing for nothing.

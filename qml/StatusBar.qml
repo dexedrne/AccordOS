@@ -17,7 +17,7 @@ Item {
 
     // ── Data ──
     property bool   locked: true               // car lock state (to be connected to the sensor)
-    property bool   showAirbag: true
+    property bool   showAirbag: false
     property bool   gpsOk: false               // receiver detected and with a position: white, otherwise red
     property real   latitude: 45.4642          // position for the weather (Main.qml updates it with the GPS)
     property real   longitude: 9.1900

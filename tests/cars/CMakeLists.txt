@@ -1,0 +1,10 @@
+cmake_minimum_required(VERSION 3.16)
+project(CarModelTests LANGUAGES CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt6 6.5 REQUIRED COMPONENTS Core Gui Test)
+enable_testing()
+add_executable(car_model_tests tst_CarModelManager.cpp
+    ../../src/core/CarModelManager.cpp ../../src/core/CarModelManager.h)
+target_link_libraries(car_model_tests PRIVATE Qt6::Core Qt6::Gui Qt6::Test)
+add_test(NAME car_model_tests COMMAND car_model_tests)

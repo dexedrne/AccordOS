@@ -27,11 +27,11 @@ Window {
     maximumWidth: _win ? parseInt(_wh[0]) : 16777215
     minimumHeight: _win ? parseInt(_wh[1]) : 0
     maximumHeight: _win ? parseInt(_wh[1]) : 16777215
-    title:  "Volta OS"
+    title:  "Accord OS · Personal Garage"
     color:  lightTheme ? "#FFFFFF" : "#171717"
     property bool lightTheme: false
     property bool rightHandDrive: false
-    property color ambientColor: "#0A84FF"
+    property color ambientColor: "#C84139"
     // "off" | "on" | "night" — see evalAmbient(). ambientOn is the RESOLVED
     // EFFECTIVE state (off/on right now), the one that one day
     // would drive a real hardware output (LED strip); for now,
@@ -55,7 +55,7 @@ Window {
         property string autoStart: "19:00"
         property string autoEnd:   "07:00"
         property bool   rightHand: false
-        property string ambient:   "#0A84FF"
+        property string ambient:   "#C84139"
         property string ambientMode: "on"
         property int    ambientBrightness: 100
         property string carColor:  "#C8C9CA"
@@ -83,7 +83,6 @@ Window {
             root.ambientColor   = ambient
             root.ambientMode    = ambientMode
             root.ambientBrightness = ambientBrightness
-            root.carColor       = carColor
             root.screenBrightness  = brightness
             root.blueLightFilterOn = blueLightFilter
             // Reapplies the real filter at startup if it was active the last
@@ -93,15 +92,6 @@ Window {
             root.evalTheme()
             root.evalAmbient()
         }
-    }
-
-    // Brings the color chosen in the Settings to the 3D car (car3DView
-    // inside CarPanel) every time it changes — same scheme already used for
-    // ambientColor, with the same defensive guard as onCarFullScreenChanged
-    // (car3DView might not be ready yet in the very first instants).
-    onCarColorChanged: {
-        if (carPanelItem && carPanelItem.car3DView)
-            carPanelItem.car3DView.carPaintColor = root.carColor
     }
 
     // "Night" window shared by the automatic theme and the "Night only"
@@ -678,8 +668,7 @@ Window {
     Connections {
         target: appPanel
         function onSettingsCarColor(c) {
-            uiPrefs.carColor = c
-            root.carColor = c
+            root.applyCarColor(c)
         }
         function onSettingsCarFinish(f) {
             if (carPanelItem && carPanelItem.car3DView) carPanelItem.car3DView.carFinish = f
@@ -1179,6 +1168,7 @@ Window {
     function applyCarColor(c) {
         uiPrefs.carColor = c
         root.carColor = c
+        if (carPanelItem && carPanelItem.car3DView) carPanelItem.car3DView.carPaintColor = c
     }
 
     function switchToSource(src) {
@@ -3035,7 +3025,7 @@ Window {
     }
 
     // ══════ GUIDED SETUP (first launch, or from Settings › System) ══════
-    property bool setupOpen: Setup.needed
+    property bool setupOpen: false
     Connections {
         target: Setup
         function onOpenRequested() { root.setupOpen = true }
