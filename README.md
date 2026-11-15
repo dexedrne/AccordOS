@@ -1,190 +1,135 @@
-🚗 Accord OS — personal garage edition
-===========
+# AccordOS
 
-A desktop fork of [VoltaOS](https://github.com/Omardigio/VoltaOS), centered on a
-1993 Honda Accord CB7. Includes a persistent local garage for the owner's Honda,
-Toyota and Lexus models. Run `./start.sh` for the desktop preview.
+**A Linux infotainment interface built around the 1993 Honda Accord CB7.**
 
-See [desktop setup and build notes](docs/accord-desktop.md). Personal model files
-are excluded from git; original model terms apply. Upstream documentation follows.
+Your Accord on screen, with an interactive 3D view, a persistent garage, and
+navigation, music and phone features inherited from
+[VoltaOS](https://github.com/Omardigio/VoltaOS).
 
-![Qt](https://img.shields.io/badge/Qt-6-brightgreen.svg)
-![QML](https://img.shields.io/badge/UI-QML-blue.svg)
-![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Wayland-red.svg)
-![AppImage](https://img.shields.io/badge/install-AppImage-orange.svg)
-![License](https://img.shields.io/badge/license-GPLv3-blue.svg)
-![Status](https://img.shields.io/badge/status-beta-yellow.svg)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)
+![AccordOS dashboard showing a red 1993 Honda Accord CB7 in the interactive 3D car view](docs/img/accordos-dashboard.png)
 
-**Volta OS** is the infotainment system I wished I could find in my own car: a full-screen in-car
-interface for Linux, written from scratch in **Qt 6 / QML**, designed for a touchscreen and for everyday
-use behind the wheel. Map, music, phone, CarPlay, video and games live together in one coherent
-interface, with a 3D car you can customize however you like.
+*Captured directly from the AccordOS desktop build with the Accord model loaded.*
 
-It is not a theme and not a skin: Volta OS is also a **Wayland compositor**. Native apps and games
-(Wine/Bottles, gamescope) do not open next to the UI, but *inside* the UI.
+[Desktop setup](docs/accord-desktop.md) · [API keys](docs/api-keys.md) ·
+[Documentation](#documentation) · [Report an issue](https://github.com/dexedrne/AccordOS/issues)
 
-It is an amateur project, born out of passion and carried forward with method: organized code,
-documentation entry by entry, translations in five languages and a ready-to-download AppImage.
+## Built for the CB7
 
-> Independent project, not affiliated with Tesla, Inc.
+AccordOS starts with the Accord selected and keeps the car at the center of the
+interface. Rotate and zoom the model, try its doors, hood and trunk, and change
+its paint and finish.
 
-* * *
+This fork adds:
 
-## ⚠️ Beta disclaimer
+- **A persistent garage.** Import another car without deleting the ones you
+  already have. Switch models from the garage dropdown.
+- **An appearance for each car.** Paint, finish, part assignments and layout stay
+  with the selected vehicle and survive a restart.
+- **Accord part recognition.** Support for the CB7 model's door, bonnet, bootlid
+  and wheel naming. The local model's missing rear-door surfaces were also repaired.
+- **Honest instrument displays.** Unavailable speed and vehicle status stay
+  unavailable. The 3D controls animate the model; they do not operate the car.
+- **Desktop startup.** Open a window first and configure online services when
+  ready, without having to finish an account wizard to see the car.
 
-Volta OS is ambitious, but it is **not complete yet**: it is in **beta**. You may run into **bugs**
-and **missing features**, which will be fixed and added in future releases.
+The local garage catalog covers the Accord, Civic Coupe, Civic SiR, Civic LX,
+Civic Type R, Toyota 4Runner, and Lexus IS 300, LS 400, LS 430 and ES 300.
+You can import other GLB models through **Add car**.
 
-**Your feedback matters a lot.** If something does not work, or if there is a feature you would like to see,
-please let me know by opening an [issue](https://github.com/Omardigio/VoltaOS/issues): tell me what you
-were doing, what you expected and what happened instead. Bug reports and feature requests are the best way to
-help the project grow.
+## In the interface
 
-The list of what does not work yet is in [docs/known-issues.md](docs/known-issues.md).
+![AccordOS showing the Accord alongside the System settings and 3D car controls](docs/img/accordos-settings.png)
 
-* * *
+*The Accord stays available alongside the app's settings and tools.*
 
-## 📋 Description
+## Maps, music and phone
 
-**Navigation.** A light, dark or satellite map with routes that take traffic into account, lane
-guidance, speed camera alerts, weather along the way and gas stations.
+The underlying VoltaOS application provides the rest of the dashboard:
 
-**Audio.** One place for local music and USB sticks, YT Music (with synced lyrics),
-Spotify with Spotify Connect, podcasts and international radio.
+| Feature | What's available | Setup |
+| --- | --- | --- |
+| Navigation | MapLibre maps, route planning and navigation UI | [Maps](docs/app/map.md), [API keys](docs/api-keys.md) |
+| Music | Local and USB music, YT Music, Spotify, podcasts and radio | [Local music](docs/app/music.md), [Spotify](docs/app/spotify.md), [Radio](docs/app/radio.md) |
+| Phone | Bluetooth audio, calls, contacts and messages | [Bluetooth](docs/app/bluetooth.md), [Phone](docs/app/phone.md) |
+| Phone projection | CarPlay dongle support and native Android Auto code | [CarPlay / Android Auto](docs/app/carplay-androidauto.md) |
+| Appearance | Light/dark themes, paint, finishes and car positioning | [Settings](docs/settings/README.md) |
+| Desktop apps | Browser, theater and native app embedding | [Browser / theater](docs/app/theater-browser.md), [Arcade](docs/app/arcade.md) |
 
-**Phone.** Over Bluetooth: music, calls, contacts and SMS. With a Carlinkit dongle, also CarPlay and
-Android Auto.
+These features depend on their services, credentials and connected hardware.
+Their presence in the interface does not mean every integration has been tested
+in this fork.
 
-**Entertainment while parked.** Theater (YouTube, Netflix and more), browser, sites used as apps and an Arcade for
-Windows games, run with Bottles and gamescope directly in the UI.
+## Run AccordOS
 
-**Customization.** Light, dark or time-based automatic theme; **left or right-hand drive** (with
-right-hand drive the whole interface is mirrored); 3D car, dock, drawer and music widget configurable from
-the settings. The interface is translated into Italian, English, Spanish, French and Portuguese.
+This is currently a **source-built desktop project**, not a ready-to-install
+replacement for a car stereo. Use Linux with working OpenGL and a Wayland session
+with XWayland available. A mouse works; a touchscreen is optional for desktop use.
 
-* * *
-
-## 📸 Preview
-
-<p align="center">
-  <img src="docs/img/galleria-1.jpg" alt="Volta OS: overview, map and navigation, Spotify">
-</p>
-<p align="center">
-  <img src="docs/img/galleria-2.jpg" alt="Volta OS: Toybox Colorizer and browser">
-</p>
-
-* * *
-
-## 📚 Documentation index
-
-**Start here**
-- [Installation and dependencies](docs/installation.md): AppImage or building from source
-- [API keys](docs/api-keys.md): which ones you need, what they unlock, where to get them (free)
-- [Supported hardware](docs/hardware.md): GPS, CarPlay dongle, phone
-
-**Usage**
-- [Interface](docs/interface.md)
-- [Settings](docs/settings/README.md), entry by entry
-- [Troubleshooting](docs/troubleshooting.md)
-- [Known issues and limitations](docs/known-issues.md)
-
-**Development**
-- [For developers](docs/development.md): project structure, services, translations, AppImage
-
-* * *
-
-## 🎛️ The apps
-
-| App | What it does | Guide |
-|---|---|---|
-| 🗺️ **Map** | navigation with satellite map, traffic, lanes, speed cameras, weather, gas stations | [map](docs/app/map.md) |
-| 🎵 **Music** | your files from the PC and USB sticks | [music](docs/app/music.md) |
-| 🎧 **YT Music** | library, search, queue, synced lyrics | [ytmusic](docs/app/ytmusic.md) |
-| 🟢 **Spotify** | playlists, library, explore, Spotify Connect | [spotify](docs/app/spotify.md) |
-| 🎙️ **Podcasts** | iTunes catalog, subscriptions, speed, timer | [podcast](docs/app/podcast.md) |
-| 📻 **Radio** | radio from all over the world, favorites | [radio](docs/app/radio.md) |
-| 📱 **Bluetooth and Phone** | music, calls, contacts, SMS | [bluetooth](docs/app/bluetooth.md), [phone](docs/app/phone.md) |
-| 🚘 **CarPlay / Android Auto** | with a Carlinkit dongle | [guide](docs/app/carplay-androidauto.md) |
-| 🎬 **Theater, Browser, Web apps** | streaming, browser, sites as apps | [guide](docs/app/theater-browser.md) |
-| 🎮 **Arcade** | Windows games with Bottles and gamescope | [arcade](docs/app/arcade.md) |
-| 🧸 **Toybox** | games and pastimes | [toybox](docs/app/toybox.md) |
-| 💬 **Messages, Calendar, Camera** | | [other](docs/app/other.md) |
-
-* * *
-
-## ⚙️ System requirements
-
-| What | Requirement |
-|---|---|
-| System | Linux with a **Wayland** session (Debian 13 / recent Ubuntu with GNOME work fine) |
-| Graphics | GPU with working OpenGL drivers |
-| Network | internet connection for maps and streaming music |
-| Screen | touchscreen recommended (also works with a mouse) |
-
-* * *
-
-## 🚀 Getting started
-
-1. **Install**: the [AppImage](docs/installation.md#appimage-no-compiling) is the easiest way,
-   or [build from source](docs/installation.md#building-from-source).
-2. **Configure**: on first launch a guided setup starts that helps you create the
-   [free API keys](docs/api-keys.md) (maps, search, weather, Spotify).
-3. **Connect the hardware** you have: see [docs/hardware.md](docs/hardware.md).
-
-Quick start on Debian 13 / Ubuntu (the AppImage needs a few system libraries, [full list here](docs/installation.md#2-install-what-it-needs-debian--ubuntu)):
-
-```bash
-sudo apt install libgl1 libegl1 libopengl0 libgbm1 libdrm2 libx11-6 libx11-xcb1 libxcb1 libxcb-dri3-0 \
-    libxcb-cursor0 libfontconfig1 libfreetype6 libexpat1 libwayland-client0 libwayland-server0 \
-    libasound2t64 libusb-1.0-0 libcom-err2 libfuse2t64 \
-    python3 python3-pip python3-dbus python3-gi mpv network-manager bluez bluez-obexd pipewire-pulse pulseaudio-utils
-pip install --user --break-system-packages -r https://raw.githubusercontent.com/Omardigio/VoltaOS/main/requirements.txt
-chmod +x VoltaOS-*-x86_64.AppImage
-./VoltaOS-*-x86_64.AppImage
+```sh
+git clone https://github.com/dexedrne/AccordOS.git
+cd AccordOS
 ```
 
-* * *
+Follow the [desktop build guide](docs/accord-desktop.md) for the required Qt
+modules, system packages and Python dependencies. The bundled MapLibre plugin
+expects **Qt 6.11.1** and **ICU 76**; include Qt's `qtimageformats` module for
+WebP textures inside GLB models.
 
-## 🏗️ Architecture
+Once built:
 
-```
-volta_os/
-├── src/         C++: startup, Wayland compositor, navigation, phone, CarPlay
-├── qml/         interface (one screen per file)
-├── services/    Python services started by the UI
-├── scripts/     game launch, translations, AppImage build
-├── assets/      icons, fonts, 3D car, radio logos
-├── i18n/        translations
-└── docs/        documentation
+```sh
+./start.sh                       # 1280 × 800 desktop window
+./start.sh --window=1600x1000     # larger preview
 ```
 
-Stack: **Qt 6 / QML**, **C++**, **Python** services, MapLibre maps, WebEngine, Wayland.
-Details in [docs/development.md](docs/development.md).
+Open **Settings → System → Guided setup** to connect maps and other services.
+On Arch Linux, the Bluetooth file-transfer package is **`bluez-obex`**.
 
-* * *
+### Bring your own models
 
-## 🛠️ Troubleshooting
+**The car model files shown in the screenshots are not included in this repo.**
+They have their own source terms and are not relicensed under the application's GPL.
 
-Common problems (audio, GPS, Bluetooth, dongle, games that do not start) are collected in
-[docs/troubleshooting.md](docs/troubleshooting.md).
+Import a GLB with **Add car**, or put your own licensed models in
+[`assets/garage/`](assets/garage/README.md) using the filenames in
+[`catalog.json`](assets/garage/catalog.json). The catalog seeds an empty garage;
+it does not overwrite an existing one. Missing files are skipped.
 
-* * *
+Models, service keys, local settings and build artifacts stay out of Git.
+[Model source credits](assets/garage/SOURCE-CREDITS.md) are retained separately.
 
-## 📄 License and credits
+## Documentation
 
-Volta OS is free software, released under the **GNU General Public License v3.0** (see [`LICENSE`](LICENSE)):
-Copyright (C) 2026 Omar (Omardigio). You can use, study, share and modify it; if you distribute
-a modified version it must stay under the same license, with its source code.
+- [AccordOS desktop setup and build notes](docs/accord-desktop.md)
+- [Upstream installation and dependency reference](docs/installation.md)
+- [API keys and connected services](docs/api-keys.md)
+- [Interface guide](docs/interface.md)
+- [Settings reference](docs/settings/README.md)
+- [Supported peripherals](docs/hardware.md)
+- [Troubleshooting](docs/troubleshooting.md) and [known upstream limitations](docs/known-issues.md)
+- [Development and project structure](docs/development.md)
 
-It is built on other open-source projects, each under its own license: Qt 6 (LGPLv3), MapLibre Native (BSD),
-the Inter font (SIL OFL), yt-dlp, ytmusicapi, spotipy, mpv and more. Maps are by MapTiler and Mapbox
-© OpenStreetMap contributors; radio stations come from [Radio Browser](https://www.radio-browser.info);
-podcasts from the iTunes catalog; weather from [Open-Meteo](https://open-meteo.com). Names and trademarks
-mentioned belong to their respective owners. Volta OS is an independent project, not affiliated with any
-car maker or with the streaming services it can connect to.
+## Current status
 
-## 👥 Contributing
+The desktop application has been built on Linux and in Ubuntu under WSL.
+Garage and appearance tests cover persistent selection, safe imports, separate
+per-car settings, Accord part names and rejected truncated GLBs.
 
-PRs are welcome: read [docs/development.md](docs/development.md) for structure, services and translations.
-And remember: bug reports and feature requests are just as valuable as code.
+**An in-car installation has not been tested.** Vehicle telemetry, wiring,
+ignition-controlled power and physical controls remain future installation work.
+WSL graphics, Bluetooth and audio also need validation on the target computer.
+There is no packaged AccordOS release yet.
+
+## Credits and license
+
+AccordOS is a fork of **[VoltaOS by Omar / Omardigio](https://github.com/Omardigio/VoltaOS)**.
+The original Qt/QML interface, compositor and service integrations come from that
+project. Copyright (C) 2026 Omar (Omardigio); the application remains available
+under the **[GNU General Public License v3.0](LICENSE)**.
+
+Built with Qt 6, C++, QML, Python, MapLibre and the other open-source projects
+credited in the upstream documentation. Map data © OpenStreetMap contributors;
+provider and service terms apply independently.
+
+Vehicle models retain their original credits and licenses. Honda, Toyota,
+Lexus and the other named brands are not affiliated with this project.
